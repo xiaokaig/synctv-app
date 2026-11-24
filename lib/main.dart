@@ -185,7 +185,7 @@ void _initializeDeferredRuntime() {
   }
   try {
     SyncTvVideoPlayerMediaKit.ensureInitialized(
-      android: true,
+      android: false,
       iOS: false,
       windows: true,
       macOS: true,
