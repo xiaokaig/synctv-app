@@ -41,7 +41,7 @@ jobs:
 
       - name: Retarget applicationId for side-by-side install
         run: |
-          sed -i 's/applicationId = \"org.synctv.app\"/applicationId = \"org.synctv.app.test\"/' android/app/build.gradle.kts
+          sed -i 's/applicationId = "org.synctv.app"/applicationId = "org.synctv.app.test"/' android/app/build.gradle.kts
           grep -n 'applicationId' android/app/build.gradle.kts
 
       - name: Build arm64 release APK
