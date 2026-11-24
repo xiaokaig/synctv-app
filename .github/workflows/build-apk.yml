@@ -1,0 +1,62 @@
+name: Build APK (Android native player)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_VERSION: "3.47.9"
+  RUST_VERSION: "1.98.0"
+
+jobs:
+  android:
+    name: Android arm64 APK
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+
+      - name: Set up build toolchain
+        uses: ./.github/actions/setup-build
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          rust-version: ${{ env.RUST_VERSION }}
+          rust-targets: aarch64-linux-android,armv7-linux-androideabi,x86_64-linux-android
+
+      - name: Configure Android plugins
+        run: flutter build apk --config-only
+
+      - name: Build arm64 release APK
+        run: |
+          flutter build apk \
+            --release \
+            --no-pub \
+            --target-platform android-arm64
+
+      - name: Report APK and signature
+        run: |
+          set -e
+          APK=build/app/outputs/flutter-apk/app-release.apk
+          ls -l "$APK"
+          keytool -printcert -jarfile "$APK" | head -12
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: synctv-apk-native-player
+          path: build/app/outputs/flutter-apk/*.apk
+          if-no-files-found: error
+          retention-days: 7
